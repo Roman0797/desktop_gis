@@ -14,17 +14,16 @@ qtwidgets = "1.1"
 altgraph = "0.17.4"
 colorama = "0.4.6"
 pefile = "2024.8.26"
-pyinstaller = "6.10.0"
 pyinstaller-hooks-contrib = "2024.8"
 pywin32-ctypes = "0.2.3"
 click = "8.1.7"
 markdown = "3.7"
-mypy-extensions = "1.0.0"
 packaging = "24.1"
 
 [tool.poetry.group.linters.dependencies]
 black = "^24.3.0"
 pathspec = "0.12.1"
+mypy-extensions = "1.0.0"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.4"

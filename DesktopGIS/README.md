@@ -26,7 +26,7 @@ poetry install
 
 ## Запуск приложения
 ```bash
-poetry run python -m desktopgis.gis_app
+poetry run python -m src.main
 ```
 
 ## Запуск тестов

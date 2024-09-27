@@ -1,7 +1,7 @@
 import pytest
 
 from unittest.mock import patch, mock_open
-from desktopgis.gis_app import GISApp
+from src.main import GISApp
 
 
 @pytest.fixture
@@ -36,14 +36,14 @@ def test_open_file_dialog(app, qtbot):
     with patch(
         "PyQt5.QtWidgets.QFileDialog.getOpenFileName", return_value=("test.txt", "")
     ):
-        app.openFileDialog()
+        app.open_file_dialog()
         assert app.filePathEdit.text() == "test.txt"
 
 
 def test_load_file_valid(app, qtbot, valid_data):
     """Тест загрузки валидного файла."""
     with patch("builtins.open", mock_open(read_data=valid_data)):
-        app.loadFile("dummy_path.txt")
+        app.load_file("dummy_path.txt")
 
     # После загрузки должны быть элементы
     assert len(app.scene.items()) > 0
@@ -52,7 +52,7 @@ def test_load_file_valid(app, qtbot, valid_data):
 def test_load_file_invalid(app, qtbot, invalid_data):
     """Тест загрузки файла с невалидными данными."""
     with patch("builtins.open", mock_open(read_data=invalid_data)):
-        app.loadFile("dummy_path.txt")
+        app.load_file("dummy_path.txt")
 
     # Проверяем, что статусная строка показывает сообщение об ошибке
     assert "Некорректные координаты в строке:" in app.statusBar.currentMessage()
@@ -60,17 +60,25 @@ def test_load_file_invalid(app, qtbot, invalid_data):
 
 def test_save_file(app, qtbot):
     """Тест сохранения файла с добавленными элементами."""
+    app.scene.clear()  # Очищаем сцену перед тестом
+
     # Добавление элементов
-    app.drawPoint([100, 100])
-    app.drawLine([200, 200, 300, 300])
+    app.draw_point([100, 100])  # Добавляем точку
+    app.draw_line([200, 200, 300, 300])  # Добавляем линию
+
+    # Проверка, что элементы добавлены в сцену
+    current_items = app.scene.items()
+    assert len(current_items) == 2  # Должно быть 2 элемента: точка и линия
 
     # Мок функции открытия для тестирования сохранения файла
     with patch("builtins.open", mock_open()) as mocked_file:
         app.file_path = "test_output.txt"
-        app.saveFile()
+        app.save_file()
+
         mocked_file.assert_called_once_with("test_output.txt", "w", encoding="utf-8")
 
         # Проверка, что корректные данные были записаны
         handle = mocked_file()
-        handle.write.assert_any_call("100 100\n")
-        handle.write.assert_any_call("200 200 300 300\n")
+
+        # Проверяем, что writelines вызван с правильным списком
+        handle.writelines.assert_called_once_with(["200 200 300 300\n", "100 100\n"])
